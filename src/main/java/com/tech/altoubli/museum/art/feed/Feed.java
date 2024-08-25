@@ -1,0 +1,24 @@
+package com.tech.altoubli.museum.art.feed;
+
+import com.tech.altoubli.museum.art.post.Post;
+import com.tech.altoubli.museum.art.user.User;
+import jakarta.persistence.*;
+
+import java.util.List;
+
+@Entity
+public class Feed {
+    @Id
+    private Long id;
+    @OneToOne
+    private User user;
+    @ManyToMany
+    @JoinTable(
+            name = "feed_posts",
+            joinColumns = @JoinColumn(name = "feed_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    private List<Post> posts;
+
+
+}
