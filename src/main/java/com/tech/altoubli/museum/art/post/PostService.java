@@ -3,6 +3,7 @@ package com.tech.altoubli.museum.art.post;
 import com.tech.altoubli.museum.art.exception.PostNotFoundExcdeption;
 import com.tech.altoubli.museum.art.user.User;
 import com.tech.altoubli.museum.art.user.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -11,16 +12,12 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
 
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private KafkaTemplate<String, Long> kafkaTemplate;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final KafkaTemplate<String, Long> kafkaTemplate;
 
     private static final String TOPIC = "feed.posts";
 
