@@ -3,10 +3,16 @@ package com.tech.altoubli.museum.art.feed;
 import com.tech.altoubli.museum.art.post.Post;
 import com.tech.altoubli.museum.art.user.User;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Feed {
     @Id
     private Long id;
@@ -19,6 +25,4 @@ public class Feed {
             inverseJoinColumns = @JoinColumn(name = "post_id")
     )
     private List<Post> posts;
-
-
 }
