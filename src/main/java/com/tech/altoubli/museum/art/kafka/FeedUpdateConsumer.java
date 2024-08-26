@@ -7,25 +7,19 @@ import com.tech.altoubli.museum.art.post.Post;
 import com.tech.altoubli.museum.art.post.PostRepository;
 import com.tech.altoubli.museum.art.user.User;
 import com.tech.altoubli.museum.art.feed.FeedRepository;
-import com.tech.altoubli.museum.art.user.UserRepository;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@Slf4j
+@RequiredArgsConstructor
 public class FeedUpdateConsumer {
 
-    @Autowired
-    private FeedRepository feedRepository;
-    @Autowired
-    private PostRepository postRepository;
-    @Autowired
-    private UserRepository userRepository;
+    private final FeedRepository feedRepository;
+    private final PostRepository postRepository;
 
     @Transactional
     @KafkaListener(topics = "feed.posts", groupId = "feed.group.dev")
@@ -40,14 +34,12 @@ public class FeedUpdateConsumer {
 
         for (User user : subscribers) {
             updateFeedForUser(user, post);
-            log.info("Hey I worked Hard111");
         }
 
         if (!post.getRequireSubscription()) {
             for (User user : followers) {
                 if (!subscribers.contains(user)) {
                     updateFeedForUser(user, post);
-                    log.info("Hey I worked Hard");
                 }
             }
         }
