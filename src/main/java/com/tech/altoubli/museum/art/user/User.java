@@ -42,7 +42,7 @@ public class User {
     )
     private List<User> following = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "following")
+    @ManyToMany(mappedBy = "following", fetch = FetchType.EAGER)
     private List<User> followers = new ArrayList<>();
 
     @ManyToMany
@@ -53,7 +53,7 @@ public class User {
     )
     private List<User> subscribing = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "subscribing")
+    @ManyToMany(mappedBy = "subscribing", fetch = FetchType.EAGER)
     private List<User> subscribers = new ArrayList<>();
 
     public String getFullName() {
