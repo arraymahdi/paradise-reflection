@@ -1,6 +1,7 @@
 package com.tech.altoubli.museum.art.user;
 
 import com.tech.altoubli.museum.art.post.Post;
+import com.tech.altoubli.museum.art.role.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,8 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import static jakarta.persistence.FetchType.EAGER;
 
 @Getter
 @Setter
@@ -42,7 +45,7 @@ public class User {
     )
     private List<User> following = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "following", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "following", fetch = EAGER)
     private List<User> followers = new ArrayList<>();
 
     @ManyToMany
@@ -53,8 +56,11 @@ public class User {
     )
     private List<User> subscribing = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "subscribing", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "subscribing", fetch = EAGER)
     private List<User> subscribers = new ArrayList<>();
+
+    @ManyToOne(fetch = EAGER)
+    private Role role;
 
     public String getFullName() {
         return getFirstName() + " " + getLastName();
