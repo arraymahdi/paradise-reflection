@@ -1,5 +1,6 @@
 package com.tech.altoubli.museum.art.user;
 
+import com.tech.altoubli.museum.art.feed.Feed;
 import com.tech.altoubli.museum.art.post.Post;
 import com.tech.altoubli.museum.art.role.Role;
 import com.tech.altoubli.museum.art.user_profile.UserProfile;
@@ -30,6 +31,9 @@ public class User implements UserDetails, Principal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
+    private String username;
+
     private String firstName;
     private String lastName;
     private LocalDate birthDay;
@@ -42,6 +46,12 @@ public class User implements UserDetails, Principal {
 
     @Column(nullable = false)
     private String password;
+
+    @OneToOne
+    private Feed feed;
+
+    @Column(columnDefinition = "boolean default true")
+    private Boolean isPrivate;
 
     private String phoneNumber;
 
@@ -76,7 +86,7 @@ public class User implements UserDetails, Principal {
     private boolean accountLocked;
     private boolean enabled;
 
-    @Column( columnDefinition = "boolean default false")
+    @Column(columnDefinition = "boolean default false")
     private boolean locked;
 
     public String getFullName() {

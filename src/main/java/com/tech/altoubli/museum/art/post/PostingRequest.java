@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostDto {
+public class PostingRequest {
     private Long userId;
     private String imageUrl;
     private String description;
