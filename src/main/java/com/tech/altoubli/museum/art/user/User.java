@@ -2,21 +2,29 @@ package com.tech.altoubli.museum.art.user;
 
 import com.tech.altoubli.museum.art.post.Post;
 import com.tech.altoubli.museum.art.role.Role;
+import com.tech.altoubli.museum.art.user_profile.UserProfile;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-
 import static jakarta.persistence.FetchType.EAGER;
 
+
+@Entity
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "users")
-public class User {
+public class User implements UserDetails, Principal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,7 +70,60 @@ public class User {
     @ManyToOne(fetch = EAGER)
     private Role role;
 
+    @OneToOne
+    private UserProfile profile;
+
+    private boolean accountLocked;
+    private boolean enabled;
+
+    @Column( columnDefinition = "boolean default false")
+    private boolean locked;
+
     public String getFullName() {
         return getFirstName() + " " + getLastName();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(new SimpleGrantedAuthority(role.getName()));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !locked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public String fullName() {
+        return getFirstName() + " " + getLastName();
+    }
+
+    @Override
+    public String getName() {
+        return email;
     }
 }
