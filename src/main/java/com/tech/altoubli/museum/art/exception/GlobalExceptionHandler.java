@@ -109,6 +109,14 @@ public class GlobalExceptionHandler {
                 .build(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<ErrorDto> handlePostNotFoundExcdeption(PostNotFoundException ex) {
+        logger.error("PostNotFoundException: ", ex);
+        return new ResponseEntity<>(ErrorDto.builder().error("Post Not Found")
+                .message(ex.getMessage())
+                .build(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(ExpiredTokenException.class)
     public ResponseEntity<ErrorDto> handleExpiredTokenException(ExpiredTokenException ex) {
         logger.error("ExpiredTokenException: ", ex);
