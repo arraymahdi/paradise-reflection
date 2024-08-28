@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -118,5 +120,36 @@ public class PostService {
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();
+    }
+
+    public List<PostDto> getPostByUser(String username, User user) {
+        User accountUser = userRepository.findByUsername(username)
+                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+        if(user.getSubscribing().contains(accountUser) || user.equals(accountUser)){
+            return accountUser.getPosts().stream()
+                    .map((post)-> PostDto
+                            .builder()
+                            .userProfile(userProfileService.getProfile(post.getCreator()).getBody())
+                            .description(post.getDescription())
+                            .imageUrl(post.getImageUrl())
+                            .requireSubscription(post.getRequireSubscription())
+                            .build())
+                    .collect(Collectors.toList());
+        }
+        if(user.getIsPublic() || user.getFollowing().contains(accountUser)){
+            return accountUser.getPosts().stream()
+                    .filter((post)-> !post.getRequireSubscription())
+                    .map((post)-> PostDto
+                            .builder()
+                            .userProfile(userProfileService.getProfile(post.getCreator()).getBody())
+                            .description(post.getDescription())
+                            .imageUrl(post.getImageUrl())
+                            .requireSubscription(post.getRequireSubscription())
+                            .build())
+                    .collect(Collectors.toList());
+
+        }
+        throw new AccessDeniedException("You need to follow "
+                + accountUser.getUsername() + " to see their posts" );
     }
 }
