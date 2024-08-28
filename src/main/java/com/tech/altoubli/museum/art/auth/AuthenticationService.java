@@ -7,6 +7,7 @@ import com.tech.altoubli.museum.art.email.EmailTemplateName;
 import com.tech.altoubli.museum.art.exception.ExpiredTokenException;
 import com.tech.altoubli.museum.art.exception.InvalidTokenException;
 import com.tech.altoubli.museum.art.exception.PasswordMismatchException;
+import com.tech.altoubli.museum.art.exception.UsernameNotUniqueException;
 import com.tech.altoubli.museum.art.feed.Feed;
 import com.tech.altoubli.museum.art.feed.FeedRepository;
 import com.tech.altoubli.museum.art.jwt.JwtService;
@@ -52,6 +53,10 @@ public class AuthenticationService {
     private String passwordResetUrl;
 
     public void register(RegistrationRequest request) throws MessagingException, RoleNotFoundException {
+        Optional<User> checkUsername = userRepository.findByUsername(request.getUsername());
+        if(checkUsername.isPresent()){
+            throw new UsernameNotUniqueException("This username has been taken");
+        }
         var user = User.builder()
                 .username(request.getUsername())
                 .firstName(request.getFirstname())
