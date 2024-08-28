@@ -8,8 +8,8 @@ import lombok.*;
 @Setter
 @Getter
 public class UserProfileDto {
+    private String username;
     private String fullName;
-    private String email;
     private String bio;
     private String imageUrl;
 }
