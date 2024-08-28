@@ -1,5 +1,7 @@
 package com.tech.altoubli.museum.art.user_profile;
 
+import com.tech.altoubli.museum.art.user.User;
+import com.tech.altoubli.museum.art.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
