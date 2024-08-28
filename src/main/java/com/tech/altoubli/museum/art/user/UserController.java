@@ -2,6 +2,7 @@ package com.tech.altoubli.museum.art.user;
 
 import com.tech.altoubli.museum.art.auth.AuthenticationService;
 import com.tech.altoubli.museum.art.auth.requests.ChangePasswordRequest;
+import com.tech.altoubli.museum.art.post.PostDto;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -50,5 +52,12 @@ public class UserController {
         HashMap<String, String> map = new HashMap<>();
         map.put("New Username", userService.changeUserName(user, username));
         return ResponseEntity.ok(map);
+    }
+
+    @GetMapping("/get-user-feed")
+    public ResponseEntity<List<PostDto>> getUserFeed(Authentication connectedUser){
+        User user = userRepository.findByEmail(connectedUser.getName())
+                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+        return ResponseEntity.ok(userService.getUserFeed(user));
     }
 }
