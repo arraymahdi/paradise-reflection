@@ -7,12 +7,14 @@ import com.tech.altoubli.museum.art.exception.NonAuthorizedActionException;
 import com.tech.altoubli.museum.art.feed.FeedRepository;
 import com.tech.altoubli.museum.art.user.User;
 import com.tech.altoubli.museum.art.user.UserRepository;
+import com.tech.altoubli.museum.art.user_profile.UserProfileService;
 import jakarta.mail.MessagingException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -22,12 +24,14 @@ public class FollowingRequestService {
     private final FollowingRequestRepository followingRequestRepository;
     private final EmailService emailService;
     private final FeedRepository feedRepository;
+    private final UserProfileService userProfileService;
 
-    public FollowingRequestService(UserRepository userRepository, FollowingRequestRepository followingRequestRepository, EmailService emailService, FeedRepository feedRepository) {
+    public FollowingRequestService(UserRepository userRepository, FollowingRequestRepository followingRequestRepository, EmailService emailService, FeedRepository feedRepository, UserProfileService userProfileService) {
         this.userRepository = userRepository;
         this.followingRequestRepository = followingRequestRepository;
         this.emailService = emailService;
         this.feedRepository = feedRepository;
+        this.userProfileService = userProfileService;
     }
 
     public ResponseEntity<Map<String, String>> sendFollowingRequest(User sender, User receiver) throws MessagingException {
@@ -107,8 +111,39 @@ public class FollowingRequestService {
     }
 
     public void updateUserFeed(User creator, User follower){
-        creator.getPosts().stream().forEach((post)->follower.getFeed().getPosts().add(post));
+        creator.getPosts().forEach((post)->follower.getFeed().getPosts().add(post));
         feedRepository.save(follower.getFeed());
         userRepository.save(follower);
     }
+
+    public List<FollowingRequestDto> getAllSentFollowingRequest(User user) {
+        return user.getSentFollowingRequests().stream()
+                .map((req)-> FollowingRequestDto.builder()
+                        .sentAt(req.getSentAt())
+                        .accepted(req.getAccepted())
+                        .acceptedAt(req.getAcceptedAt())
+                        .sender(userProfileService.getProfile(req.getSender()).getBody())
+                        .receiver(userProfileService.getProfile(req.getReceiver()).getBody())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public List<FollowingRequestDto> getAllReceivedFollowingRequest(User user) {
+        return user.getReceivedFollowingRequests().stream()
+                .map((req)-> FollowingRequestDto.builder()
+                        .sentAt(req.getSentAt())
+                        .accepted(req.getAccepted())
+                        .acceptedAt(req.getAcceptedAt())
+                        .sender(userProfileService.getProfile(req.getSender()).getBody())
+                        .receiver(userProfileService.getProfile(req.getReceiver()).getBody())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+//    public ResponseEntity<Map<String, String>> deleteFollowingRequest(Long requestId, User user) {
+//        FollowingRequest request = followingRequestRepository.findById(requestId)
+//                .orElseThrow(()-> new FollowingRequestNotFoundException("Request Not Found"));
+//
+//
+//    }
 }
