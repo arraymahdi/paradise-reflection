@@ -1,11 +1,18 @@
 package com.tech.altoubli.museum.art.post;
 
 import com.tech.altoubli.museum.art.exception.PostNotFoundExcdeption;
+import com.tech.altoubli.museum.art.file_upload.FileUploadService;
 import com.tech.altoubli.museum.art.user.User;
 import com.tech.altoubli.museum.art.user.UserRepository;
+import com.tech.altoubli.museum.art.user_profile.UserProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDate;
 
 @Service
@@ -14,27 +21,31 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final UserProfileService userProfileService;
     private final KafkaTemplate<String, Long> kafkaTemplate;
+    private final FileUploadService fileUploadService;
 
     private static final String TOPIC = "feed.posts";
 
-    public PostDto createPost(PostDto postDto) {
-        User user = userRepository.findById(postDto.getUserId())
-                .orElseThrow(()-> new RuntimeException("User Not Found"));
-
+    public PostDto createPost(String description, Boolean requireSubscription, MultipartFile file,
+                                     Authentication connectedUser) {
+        User user = userRepository.findByEmail(connectedUser.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+        String filePath = fileUploadService.uploadFile(file, "posts", connectedUser);
         Post post = Post.builder()
                 .creator(user)
-                .imageUrl(postDto.getImageUrl())
-                .description(postDto.getDescription())
+                .imageUrl(filePath)
+                .description(description)
                 .createdAt(LocalDate.now())
-                .requireSubscription(postDto.getRequireSubscription())
+                .requireSubscription(requireSubscription)
                 .build();
 
         post = postRepository.save(post);
         kafkaTemplate.send(TOPIC, post.getId());
 
         return PostDto.builder()
-                .userId(post.getCreator().getId())
+                .userProfile(userProfileService.getProfile(
+                        post.getCreator()).getBody())
                 .imageUrl(post.getImageUrl())
                 .description(post.getDescription())
                 .requireSubscription(post.getRequireSubscription())
@@ -42,15 +53,34 @@ public class PostService {
                 .build();
     }
 
-    public PostDto getPostById(Long postId) {
+    public PostDto getPostById(Long postId, User user) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(()-> new PostNotFoundExcdeption("Post Not Found"));
-        return PostDto.builder()
-                .userId(post.getCreator().getId())
-                .imageUrl(post.getImageUrl())
-                .description(post.getDescription())
-                .requireSubscription(post.getRequireSubscription())
-                .createdAt(post.getCreatedAt())
-                .build();
+                .orElseThrow(() -> new PostNotFoundExcdeption("Post Not Found"));
+        User creator = post.getCreator();
+        if (creator.getIsPublic() && !post.getRequireSubscription()){
+            return PostDto.builder()
+                    .userProfile(userProfileService.getProfile(creator).getBody())
+                    .imageUrl(post.getImageUrl())
+                    .description(post.getDescription())
+                    .requireSubscription(post.getRequireSubscription())
+                    .createdAt(post.getCreatedAt())
+                    .build();
+        }
+        boolean isCreator = user.getId().equals(creator.getId());
+        boolean isSubscribed = user.getSubscribing().contains(creator);
+        boolean isFollowingNonExclusive = user.getFollowing().contains(creator) && !post.getRequireSubscription();
+
+        if (isCreator || isSubscribed || isFollowingNonExclusive) {
+            return PostDto.builder()
+                    .userProfile(userProfileService.getProfile(creator).getBody())
+                    .imageUrl(post.getImageUrl())
+                    .description(post.getDescription())
+                    .requireSubscription(post.getRequireSubscription())
+                    .createdAt(post.getCreatedAt())
+                    .build();
+        } else {
+            throw new AccessDeniedException("You do not have permission to view this post");
+        }
     }
+
 }
