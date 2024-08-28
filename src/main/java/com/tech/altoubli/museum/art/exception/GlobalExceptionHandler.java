@@ -14,14 +14,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.mail.MailSendException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -136,6 +142,26 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ErrorDto.builder().error("Invalid Token")
                 .message("You are not authorized to perform this action.")
                 .build(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorDto> handleAccessDeniedException(AccessDeniedException ex) {
+        return new ResponseEntity<>(ErrorDto.builder()
+                .error("Access Denied")
+                .message(ex.getMessage())
+                .build(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorDto> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+        return new ResponseEntity<>(ErrorDto.builder()
+                .error("Validation Failed")
+                .message("Input validation failed")
+                .build(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvalidTokenException.class)
