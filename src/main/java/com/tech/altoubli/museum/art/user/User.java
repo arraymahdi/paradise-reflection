@@ -50,8 +50,8 @@ public class User implements UserDetails, Principal {
     @OneToOne
     private Feed feed;
 
-    @Column(columnDefinition = "boolean default true")
-    private Boolean isPrivate;
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isPublic;
 
     private String phoneNumber;
 
