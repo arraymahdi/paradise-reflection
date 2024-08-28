@@ -37,13 +37,13 @@ public class FollowingRequestController {
         return followingRequestService.acceptFollowingRequest(requestId, user);
     }
 
-//    @DeleteMapping("/accept/follow-request/{requestId}")
-//    public ResponseEntity<Map<String, String>> deleteFollowingRequest(@PathVariable Long requestId,
-//                                                                      Authentication connectedUser) {
-//        User user = userRepository.findByEmail(connectedUser.getName())
-//                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
-//        return followingRequestService.deleteFollowingRequest(requestId, user);
-//    }
+    @DeleteMapping("/delete/follow-request/{requestId}")
+    public ResponseEntity<Map<String, String>> deleteFollowingRequest(@PathVariable Long requestId,
+                                                                      Authentication connectedUser) {
+        User user = userRepository.findByEmail(connectedUser.getName())
+                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+        return followingRequestService.deleteFollowingRequest(requestId, user);
+    }
 
     @GetMapping("/sent/follow-request")
     public ResponseEntity<List<FollowingRequestDto>> getAllSentFollowingRequests(Authentication connectedUser) {
