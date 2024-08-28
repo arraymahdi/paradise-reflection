@@ -1,6 +1,7 @@
 package com.tech.altoubli.museum.art.user;
 
 import com.tech.altoubli.museum.art.feed.Feed;
+import com.tech.altoubli.museum.art.following_request.FollowingRequest;
 import com.tech.altoubli.museum.art.post.Post;
 import com.tech.altoubli.museum.art.role.Role;
 import com.tech.altoubli.museum.art.user_profile.UserProfile;
@@ -65,6 +66,12 @@ public class User implements UserDetails, Principal {
 
     @ManyToMany(mappedBy = "following", fetch = EAGER)
     private List<User> followers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FollowingRequest> sentFollowingRequests;
+
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FollowingRequest> receivedFollowingRequests;
 
     @ManyToMany
     @JoinTable(
