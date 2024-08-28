@@ -46,4 +46,16 @@ public class UserService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    public List<PostDto> getUserPosts(User user) {
+        return user.getPosts().stream()
+                .map((post)-> PostDto
+                        .builder()
+                        .userProfile(userProfileService.getProfile(post.getCreator()).getBody())
+                        .description(post.getDescription())
+                        .imageUrl(post.getImageUrl())
+                        .requireSubscription(post.getRequireSubscription())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }
