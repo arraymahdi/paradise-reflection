@@ -117,6 +117,14 @@ public class GlobalExceptionHandler {
                 .build(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(FollowingRequestNotFoundException.class)
+    public ResponseEntity<ErrorDto> handleFollowingRequestNotFoundException(FollowingRequestNotFoundException ex) {
+        logger.error("FollowingRequestNotFoundException: ", ex);
+        return new ResponseEntity<>(ErrorDto.builder().error("Request Not Found")
+                .message(ex.getMessage())
+                .build(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(ExpiredTokenException.class)
     public ResponseEntity<ErrorDto> handleExpiredTokenException(ExpiredTokenException ex) {
         logger.error("ExpiredTokenException: ", ex);
