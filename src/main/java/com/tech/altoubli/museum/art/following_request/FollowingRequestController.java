@@ -28,4 +28,12 @@ public class FollowingRequestController {
                 .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
         return followingRequestService.sendFollowingRequest(sender, receiver);
     }
+
+    @PostMapping("/accept/follow-request/{requestId}")
+    public ResponseEntity<Map<String, String>> acceptFollowingRequest(@PathVariable Long requestId,
+                                                                    Authentication connectedUser) {
+        User user = userRepository.findByEmail(connectedUser.getName())
+                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+        return followingRequestService.acceptFollowingRequest(requestId, user);
+    }
 }
