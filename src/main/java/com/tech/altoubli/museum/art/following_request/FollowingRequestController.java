@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -35,5 +35,27 @@ public class FollowingRequestController {
         User user = userRepository.findByEmail(connectedUser.getName())
                 .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
         return followingRequestService.acceptFollowingRequest(requestId, user);
+    }
+
+//    @DeleteMapping("/accept/follow-request/{requestId}")
+//    public ResponseEntity<Map<String, String>> deleteFollowingRequest(@PathVariable Long requestId,
+//                                                                      Authentication connectedUser) {
+//        User user = userRepository.findByEmail(connectedUser.getName())
+//                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+//        return followingRequestService.deleteFollowingRequest(requestId, user);
+//    }
+
+    @GetMapping("/sent/follow-request")
+    public ResponseEntity<List<FollowingRequestDto>> getAllSentFollowingRequests(Authentication connectedUser) {
+        User user = userRepository.findByEmail(connectedUser.getName())
+                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+        return ResponseEntity.ok(followingRequestService.getAllSentFollowingRequest(user));
+    }
+
+    @GetMapping("/received/follow-request")
+    public ResponseEntity<List<FollowingRequestDto>> getAllReceivedFollowingRequests(Authentication connectedUser) {
+        User user = userRepository.findByEmail(connectedUser.getName())
+                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+        return ResponseEntity.ok(followingRequestService.getAllReceivedFollowingRequest(user));
     }
 }
