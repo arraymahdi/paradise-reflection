@@ -53,12 +53,12 @@ public class AuthenticationService {
     private String passwordResetUrl;
 
     public void register(RegistrationRequest request) throws MessagingException, RoleNotFoundException {
-        Optional<User> checkUsername = userRepository.findByUsername(request.getUsername());
+        Optional<User> checkUsername = userRepository.findByNickName(request.getNickName());
         if(checkUsername.isPresent()){
             throw new UsernameNotUniqueException("This username has been taken");
         }
         var user = User.builder()
-                .username(request.getUsername())
+                .nickName(request.getNickName())
                 .firstName(request.getFirstname())
                 .lastName(request.getLastname())
                 .email(request.getEmail())
@@ -172,7 +172,7 @@ public class AuthenticationService {
         if (user.isPresent()) {
             User usr = user.get();
             String newToken = generateAndSaveActivationToken(usr);
-            emailService.sendEmail(
+            emailService.sendAccountActivationEmail(
                     usr.getEmail(),
                     usr.getFullName(),
                     EmailTemplateName.RESET_FORGOTTEN_PASSWORD,
@@ -188,7 +188,7 @@ public class AuthenticationService {
     private void sendValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSaveActivationToken(user);
 
-        emailService.sendEmail(
+        emailService.sendAccountActivationEmail(
                 user.getEmail(),
                 user.getFullName(),
                 EmailTemplateName.ACTIVATE_ACCOUNT,
