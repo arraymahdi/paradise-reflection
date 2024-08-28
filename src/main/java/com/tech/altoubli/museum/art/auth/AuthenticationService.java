@@ -7,6 +7,8 @@ import com.tech.altoubli.museum.art.email.EmailTemplateName;
 import com.tech.altoubli.museum.art.exception.ExpiredTokenException;
 import com.tech.altoubli.museum.art.exception.InvalidTokenException;
 import com.tech.altoubli.museum.art.exception.PasswordMismatchException;
+import com.tech.altoubli.museum.art.feed.Feed;
+import com.tech.altoubli.museum.art.feed.FeedRepository;
 import com.tech.altoubli.museum.art.jwt.JwtService;
 import com.tech.altoubli.museum.art.role.RoleRepository;
 import com.tech.altoubli.museum.art.user.Token;
@@ -42,6 +44,7 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
     private final RoleRepository roleRepository;
     private final UserProfileRepository userProfileRepository;
+    private final FeedRepository feedRepository;
 
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
@@ -50,9 +53,11 @@ public class AuthenticationService {
 
     public void register(RegistrationRequest request) throws MessagingException, RoleNotFoundException {
         var user = User.builder()
+                .username(request.getUsername())
                 .firstName(request.getFirstname())
                 .lastName(request.getLastname())
                 .email(request.getEmail())
+                .isPublic(false)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(roleRepository.findByName("ROLE_USER")
                         .orElseThrow(()-> new RoleNotFoundException("Role Not Found")))
@@ -64,6 +69,10 @@ public class AuthenticationService {
         UserProfile userProfile = new UserProfile();
         userProfile.setUser(user);
         userProfileRepository.save(userProfile);
+        Feed feed = new Feed();
+        feed.setUser(user);
+        feedRepository.save(feed);
+        user.setFeed(feed);
         user.setProfile(userProfile);
         userRepository.save(user);
     }
