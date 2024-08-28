@@ -39,12 +39,21 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostById(postId, user));
     }
 
+    @PutMapping("/{postId}")
+    public ResponseEntity<PostDto> updatePostById(@PathVariable Long postId,
+                                               @RequestBody PostUpdateRequest request,
+                                               Authentication connectedUser) {
+        User user = userRepository.findByEmail(connectedUser.getName())
+                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+        return ResponseEntity.ok(postService.updatePostById(postId, request, user));
+    }
+
     @DeleteMapping("/delete/{postId}")
     public ResponseEntity<Map<String, String>> deletePostById(@PathVariable Long postId,
                                          Authentication connectedUser) {
         User user = userRepository.findByEmail(connectedUser.getName())
                 .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
-        postService.delePostById(postId, user);
+        postService.deletePostById(postId, user);
         Map<String, String> res = new HashMap<>();
         res.put("Status", "The post has been deleted successfully.");
         return ResponseEntity.ok(res);
