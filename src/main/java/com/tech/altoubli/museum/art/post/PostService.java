@@ -1,6 +1,7 @@
 package com.tech.altoubli.museum.art.post;
 
-import com.tech.altoubli.museum.art.exception.PostNotFoundExcdeption;
+import com.tech.altoubli.museum.art.exception.NonAuthorizedActionException;
+import com.tech.altoubli.museum.art.exception.PostNotFoundException;
 import com.tech.altoubli.museum.art.file_upload.FileUploadService;
 import com.tech.altoubli.museum.art.user.User;
 import com.tech.altoubli.museum.art.user.UserRepository;
@@ -55,7 +56,7 @@ public class PostService {
 
     public PostDto getPostById(Long postId, User user) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundExcdeption("Post Not Found"));
+                .orElseThrow(() -> new PostNotFoundException("Post Not Found"));
         User creator = post.getCreator();
         if (creator.getIsPublic() && !post.getRequireSubscription()){
             return PostDto.builder()
@@ -83,4 +84,13 @@ public class PostService {
         }
     }
 
+    public void delePostById(Long postId, User user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(()-> new PostNotFoundException("Post Not Found"));
+        if(user.getId().equals(post.getCreator().getId())){
+            postRepository.deleteById(postId);
+        } else {
+            throw new NonAuthorizedActionException("You're not Authorized to make this action");
+        }
+    }
 }
