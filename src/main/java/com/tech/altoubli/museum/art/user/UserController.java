@@ -60,4 +60,11 @@ public class UserController {
                 .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
         return ResponseEntity.ok(userService.getUserFeed(user));
     }
+
+    @GetMapping("/get-user-posts")
+    public ResponseEntity<List<PostDto>> getUserPosts(Authentication connectedUser){
+        User user = userRepository.findByEmail(connectedUser.getName())
+                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+        return ResponseEntity.ok(userService.getUserPosts(user));
+    }
 }
