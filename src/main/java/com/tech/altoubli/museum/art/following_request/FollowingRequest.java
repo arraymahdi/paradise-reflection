@@ -25,5 +25,6 @@ public class FollowingRequest {
     private User receiver;
     private LocalDate sentAt;
     private Boolean accepted;
+    private LocalDate acceptedAt;
 
 }
