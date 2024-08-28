@@ -33,7 +33,7 @@ public class User implements UserDetails, Principal {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String username;
+    private String nickName;
 
     private String firstName;
     private String lastName;

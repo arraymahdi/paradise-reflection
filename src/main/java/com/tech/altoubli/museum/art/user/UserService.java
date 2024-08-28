@@ -26,11 +26,11 @@ public class UserService {
     }
 
     public String changeUserName(User user, String username) {
-        Optional<User> checkUsername = userRepository.findByUsername(username);
+        Optional<User> checkUsername = userRepository.findByNickName(username);
         if(checkUsername.isPresent()){
             throw new UsernameNotUniqueException("This username has been taken");
         }
-        user.setUsername(username);
+        user.setNickName(username);
         userRepository.save(user);
         return username;
     }

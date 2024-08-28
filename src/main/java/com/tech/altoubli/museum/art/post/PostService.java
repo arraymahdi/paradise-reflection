@@ -123,7 +123,7 @@ public class PostService {
     }
 
     public List<PostDto> getPostByUser(String username, User user) {
-        User accountUser = userRepository.findByUsername(username)
+        User accountUser = userRepository.findByNickName(username)
                 .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
         if(user.getSubscribing().contains(accountUser) || user.equals(accountUser)){
             return accountUser.getPosts().stream()
