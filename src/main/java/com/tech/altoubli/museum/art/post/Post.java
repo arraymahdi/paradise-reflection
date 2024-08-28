@@ -24,6 +24,7 @@ public class Post {
     private String imageUrl;
     private String description;
     private LocalDate createdAt;
+    private LocalDate updatedAt;
     private Boolean requireSubscription;
 
 }
