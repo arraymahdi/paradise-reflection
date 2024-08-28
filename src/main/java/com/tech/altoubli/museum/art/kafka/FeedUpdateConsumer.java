@@ -1,6 +1,6 @@
 package com.tech.altoubli.museum.art.kafka;
 
-import com.tech.altoubli.museum.art.exception.PostNotFoundExcdeption;
+import com.tech.altoubli.museum.art.exception.PostNotFoundException;
 import com.tech.altoubli.museum.art.exception.UserFeedNotFoundException;
 import com.tech.altoubli.museum.art.feed.Feed;
 import com.tech.altoubli.museum.art.post.Post;
@@ -24,7 +24,7 @@ public class FeedUpdateConsumer {
     @KafkaListener(topics = "feed.posts", groupId = "feed.group.dev")
     public void consumePostEvent(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(()-> new PostNotFoundExcdeption("Post Not Found"));
+                .orElseThrow(()-> new PostNotFoundException("Post Not Found"));
         User creator = post.getCreator();
 
         List<User> followers = creator.getFollowers();
