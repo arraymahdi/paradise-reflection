@@ -51,6 +51,16 @@ public class GlobalExceptionHandler {
                         .build(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UsernameNotUniqueException.class)
+    public ResponseEntity<ErrorDto> handleUsernameNotUniqueException(UsernameNotUniqueException ex) {
+        logger.error("UsernameNotUniqueException: ", ex);
+        return new ResponseEntity<>(
+                ErrorDto.builder()
+                        .error("UsernameNotUniqueException: ")
+                        .message("This username is taken.")
+                        .build(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(PasswordMismatchException.class)
     public ResponseEntity<ErrorDto> handlePasswordMismatchException(PasswordMismatchException ex) {
         logger.error("PasswordMismatchException: ", ex);
