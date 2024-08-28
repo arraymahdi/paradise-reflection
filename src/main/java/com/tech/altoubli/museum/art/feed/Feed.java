@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Feed {
     @Id
+    @GeneratedValue
     private Long id;
     @OneToOne
     private User user;
