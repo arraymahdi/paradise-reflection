@@ -140,10 +140,16 @@ public class FollowingRequestService {
                 .collect(Collectors.toList());
     }
 
-//    public ResponseEntity<Map<String, String>> deleteFollowingRequest(Long requestId, User user) {
-//        FollowingRequest request = followingRequestRepository.findById(requestId)
-//                .orElseThrow(()-> new FollowingRequestNotFoundException("Request Not Found"));
-//
-//
-//    }
+    public ResponseEntity<Map<String, String>> deleteFollowingRequest(Long requestId, User user) {
+        FollowingRequest request = followingRequestRepository.findById(requestId)
+                .orElseThrow(()-> new FollowingRequestNotFoundException("Request Not Found"));
+
+        if(user.equals(request.getReceiver()) || user.equals(request.getSender())){
+            followingRequestRepository.deleteById(requestId);
+            Map<String, String> res = new HashMap<>();
+            res.put("Status", "The request has been deleted successfully");
+            return ResponseEntity.ok(res);
+        }
+        throw new NonAuthorizedActionException("You're not Authorized to delete this record.");
+    }
 }
