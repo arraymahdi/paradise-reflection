@@ -10,6 +10,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
@@ -35,4 +38,16 @@ public class PostController {
                 .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
         return ResponseEntity.ok(postService.getPostById(postId, user));
     }
+
+    @DeleteMapping("/delete/{postId}")
+    public ResponseEntity<Map<String, String>> deletePostById(@PathVariable Long postId,
+                                         Authentication connectedUser) {
+        User user = userRepository.findByEmail(connectedUser.getName())
+                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+        postService.delePostById(postId, user);
+        Map<String, String> res = new HashMap<>();
+        res.put("Status", "The post has been deleted successfully.");
+        return ResponseEntity.ok(res);
+    }
+
 }
