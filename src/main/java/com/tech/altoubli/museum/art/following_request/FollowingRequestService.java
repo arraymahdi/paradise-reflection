@@ -2,6 +2,9 @@ package com.tech.altoubli.museum.art.following_request;
 
 import com.tech.altoubli.museum.art.email.EmailService;
 import com.tech.altoubli.museum.art.email.EmailTemplateName;
+import com.tech.altoubli.museum.art.exception.FollowingRequestNotFoundException;
+import com.tech.altoubli.museum.art.exception.NonAuthorizedActionException;
+import com.tech.altoubli.museum.art.feed.FeedRepository;
 import com.tech.altoubli.museum.art.user.User;
 import com.tech.altoubli.museum.art.user.UserRepository;
 import jakarta.mail.MessagingException;
@@ -18,11 +21,13 @@ public class FollowingRequestService {
     private final UserRepository userRepository;
     private final FollowingRequestRepository followingRequestRepository;
     private final EmailService emailService;
+    private final FeedRepository feedRepository;
 
-    public FollowingRequestService(UserRepository userRepository, FollowingRequestRepository followingRequestRepository, EmailService emailService) {
+    public FollowingRequestService(UserRepository userRepository, FollowingRequestRepository followingRequestRepository, EmailService emailService, FeedRepository feedRepository) {
         this.userRepository = userRepository;
         this.followingRequestRepository = followingRequestRepository;
         this.emailService = emailService;
+        this.feedRepository = feedRepository;
     }
 
     public ResponseEntity<Map<String, String>> sendFollowingRequest(User sender, User receiver) throws MessagingException {
@@ -49,6 +54,7 @@ public class FollowingRequestService {
             userRepository.save(sender);
             receiver.getFollowers().add(sender);
             userRepository.save(receiver);
+            updateUserFeed(receiver, sender);
             Map<String, String>  res = new HashMap<>();
             res.put("Status", "Now you're following this account!");
             return ResponseEntity.ok(res);
@@ -79,5 +85,30 @@ public class FollowingRequestService {
         Map<String, String>  res = new HashMap<>();
         res.put("Status", "Your request has been sent, wait for acceptance!");
         return ResponseEntity.ok(res);
+    }
+
+    public ResponseEntity<Map<String, String>> acceptFollowingRequest(Long requestId, User user) {
+        FollowingRequest request = followingRequestRepository.findById(requestId)
+                .orElseThrow(()-> new FollowingRequestNotFoundException("Request Not Found"));
+        if(request.getReceiver().equals(user)){
+            request.setAccepted(true);
+            request.setAcceptedAt(LocalDate.now());
+            followingRequestRepository.save(request);
+            user.getFollowers().add(request.getSender());
+            userRepository.save(user);
+            request.getSender().getFollowing().add(user);
+            userRepository.save(request.getSender());
+            updateUserFeed(user, request.getSender());
+            Map <String, String> res = new HashMap<>();
+            res.put("Status", "The request has been accepted.");
+            return ResponseEntity.ok(res);
+        }
+        throw new NonAuthorizedActionException("You're not authorized to accept this request.");
+    }
+
+    public void updateUserFeed(User creator, User follower){
+        creator.getPosts().stream().forEach((post)->follower.getFeed().getPosts().add(post));
+        feedRepository.save(follower.getFeed());
+        userRepository.save(follower);
     }
 }
