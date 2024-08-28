@@ -41,4 +41,14 @@ public class UserController {
         map.put("isPublic", userService.changeAccountStatus(booleanStatus, user));
         return ResponseEntity.ok(map);
     }
+
+    @PutMapping("/change-username/{username}")
+    public ResponseEntity<Map<String, String>> changeUsername(@PathVariable String username,
+                                                                 Authentication connectedUser){
+        User user = userRepository.findByEmail(connectedUser.getName())
+                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+        HashMap<String, String> map = new HashMap<>();
+        map.put("New Username", userService.changeUserName(user, username));
+        return ResponseEntity.ok(map);
+    }
 }
