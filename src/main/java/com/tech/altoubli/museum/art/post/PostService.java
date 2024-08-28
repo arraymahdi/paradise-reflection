@@ -84,7 +84,7 @@ public class PostService {
         }
     }
 
-    public void delePostById(Long postId, User user) {
+    public void deletePostById(Long postId, User user) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(()-> new PostNotFoundException("Post Not Found"));
         if(user.getId().equals(post.getCreator().getId())){
@@ -92,5 +92,31 @@ public class PostService {
         } else {
             throw new NonAuthorizedActionException("You're not Authorized to make this action");
         }
+    }
+
+    public PostDto updatePostById(Long postId, PostUpdateRequest request, User user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(()-> new PostNotFoundException("Post Not Found"));
+        if(user.getId().equals(post.getCreator().getId())){
+            if(request.getDescription() != null){
+                post.setDescription(request.getDescription());
+                post.setUpdatedAt(LocalDate.now());
+            }
+            if(request.getRequireSubscription() != null){
+                post.setRequireSubscription(request.getRequireSubscription());
+                post.setUpdatedAt(LocalDate.now());
+            }
+            postRepository.save(post);
+        } else {
+            throw new NonAuthorizedActionException("You're not Authorized to make this action");
+        }
+        return PostDto.builder()
+                .userProfile(userProfileService.getProfile(post.getCreator()).getBody())
+                .imageUrl(post.getImageUrl())
+                .description(post.getDescription())
+                .requireSubscription(post.getRequireSubscription())
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+                .build();
     }
 }
