@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -37,6 +38,14 @@ public class PostController {
         User user = userRepository.findByEmail(connectedUser.getName())
                 .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
         return ResponseEntity.ok(postService.getPostById(postId, user));
+    }
+
+    @GetMapping("/user/{username}")
+    public ResponseEntity<List<PostDto>> getPostByUser(@PathVariable String username,
+                                                     Authentication connectedUser) {
+        User user = userRepository.findByEmail(connectedUser.getName())
+                .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+        return ResponseEntity.ok(postService.getPostByUser(username, user));
     }
 
     @PutMapping("/{postId}")
