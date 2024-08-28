@@ -15,5 +15,6 @@ public class PostDto {
     private String imageUrl;
     private String description;
     private LocalDate createdAt;
+    private LocalDate updatedAt;
     private Boolean requireSubscription;
 }
