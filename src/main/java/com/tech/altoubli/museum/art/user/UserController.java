@@ -5,10 +5,9 @@ import com.tech.altoubli.museum.art.auth.requests.ChangePasswordRequest;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +16,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
     private final AuthenticationService service;
+    private final UserRepository userRepository;
+    private final UserService userService;
+
     @PostMapping("/change-password")
     public ResponseEntity<Map<String, String>> changePassword(
             @RequestHeader("Authorization") String token,
@@ -26,6 +28,17 @@ public class UserController {
                 request.getNewPassword(), request.getConfirmPassword());
         HashMap<String, String> map = new HashMap<>();
         map.put("Status", "Password changed successfully");
+        return ResponseEntity.ok(map);
+    }
+
+    @PutMapping("/change-account-status/{status}")
+    public ResponseEntity<Map<String, Boolean>> changeUserStatus(@PathVariable String status,
+                                                                Authentication connectedUser){
+        Boolean booleanStatus = Boolean.valueOf(status);
+        User user = userRepository.findByEmail(connectedUser.getName())
+                        .orElseThrow(()-> new UsernameNotFoundException("User Not Found"));
+        HashMap<String, Boolean> map = new HashMap<>();
+        map.put("isPublic", userService.changeAccountStatus(booleanStatus, user));
         return ResponseEntity.ok(map);
     }
 }
