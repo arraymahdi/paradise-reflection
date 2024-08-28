@@ -32,7 +32,7 @@ public class UserProfileService {
 
     public ResponseEntity<UserProfileDto> getProfile(User user) {
         UserProfile userProfile = user.getProfile();
-        return ResponseEntity.ok(new UserProfileDto(user.getFullName(), user.getName(),
+        return ResponseEntity.ok(new UserProfileDto(user.getUsername(), user.getFullName(),
                 userProfile.getDescription(), userProfile.getImageUrl()));
     }
 
