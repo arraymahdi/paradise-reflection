@@ -19,7 +19,7 @@ public class Feed {
     private Long id;
     @OneToOne
     private User user;
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "feed_posts",
             joinColumns = @JoinColumn(name = "feed_id"),
