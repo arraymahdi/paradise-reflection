@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,6 +32,7 @@ import javax.management.relation.RoleNotFoundException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -59,8 +61,8 @@ public class AuthenticationService {
         }
         var user = User.builder()
                 .nickName(request.getNickName())
-                .firstName(request.getFirstname())
-                .lastName(request.getLastname())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
                 .email(request.getEmail())
                 .isPublic(false)
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -131,6 +133,26 @@ public class AuthenticationService {
         tokenRepository.save(token);
 
         return generatedToken;
+    }
+
+    public void resetActivationCode(AuthenticationRequest request) throws MessagingException {
+        try{
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+        } catch (DisabledException exception){
+            User user = userRepository.findByEmail(request.getEmail()).get();
+            List<Token> tokens = tokenRepository.findByUser(user);
+            tokens.forEach((token)->{
+                if (LocalDateTime.now().isBefore(token.getExpiresAt())){
+                    token.setExpiresAt(LocalDateTime.now());
+                }
+            });
+            sendValidationEmail(user);
+        }
     }
 
     public void setNewPassword(String token, String password, String confirmPassword) {
