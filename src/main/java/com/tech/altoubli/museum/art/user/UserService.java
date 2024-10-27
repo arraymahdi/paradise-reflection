@@ -41,6 +41,8 @@ public class UserService {
                         .builder()
                         .userProfile(userProfileService.getProfile(post.getCreator()).getBody())
                         .description(post.getDescription())
+                        .updatedAt(post.getUpdatedAt())
+                        .createdAt(post.getCreatedAt())
                         .imageUrl(post.getImageUrl())
                         .requireSubscription(post.getRequireSubscription())
                         .build())
