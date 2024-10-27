@@ -30,6 +30,13 @@ public class AuthController {
         return ResponseEntity.accepted().build();
     }
 
+    @PostMapping("/send-new-activation-code")
+    public void newActivationCodeRequest(
+            @RequestBody AuthenticationRequest request
+    ) throws MessagingException {
+        service.resetActivationCode(request);
+    }
+
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticationRequest request
