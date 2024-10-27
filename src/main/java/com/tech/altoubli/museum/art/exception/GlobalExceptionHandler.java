@@ -25,6 +25,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -150,6 +151,14 @@ public class GlobalExceptionHandler {
                         .error("HttpMessageNotReadableException")
                         .message("You're request body doesn't match the API requirements")
                         .build(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorDto> handleNoResourceFoundException(NoResourceFoundException ex) {
+        logger.error("Page Not Found: ", ex);
+        return new ResponseEntity<>(ErrorDto.builder().error("The requested page is not found")
+                .message("Hey! the requested page is not found.")
+                .build(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(DateFormatException.class)
