@@ -30,7 +30,7 @@ import static jakarta.persistence.FetchType.EAGER;
 @NoArgsConstructor
 @Builder
 @Table(name = "users")
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners(AuditingEntityListener .class)
 public class User implements UserDetails, Principal {
 
     @Id

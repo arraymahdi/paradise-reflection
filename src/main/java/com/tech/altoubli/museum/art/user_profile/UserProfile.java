@@ -21,6 +21,7 @@ public class UserProfile {
     private int id;
     @OneToOne
     private User user;
+    private Double subscriptionRate;
     private String description;
     private String imageUrl;
 }

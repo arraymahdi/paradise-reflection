@@ -1,6 +1,5 @@
 package com.tech.altoubli.museum.art.subscribing_request;
 
-import com.paypal.base.rest.PayPalRESTException;
 import com.tech.altoubli.museum.art.user.User;
 import com.tech.altoubli.museum.art.user.UserRepository;
 import com.tech.altoubli.museum.art.user.UserService;
