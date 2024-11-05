@@ -23,43 +23,43 @@ public class PayoutService {
 
     public void initiatePayout(String subscriptionAmount, String receiverPayPalId) {
         // Calculate 70% of the subscription amount for payout
-        double totalAmount = Double.parseDouble(subscriptionAmount);
-        double payoutAmount = totalAmount * 0.7;
-
-        // Construct the PayoutsPostRequest directly
-        PayoutsPostRequest request = new PayoutsPostRequest();
-
-        // Create the sender batch header
-        SenderBatchHeader batchHeader = new SenderBatchHeader()
-                .senderBatchId("batch_" + System.currentTimeMillis())
-                .emailSubject("You have received a payout!");
-
-        // Set up a single payout item with the calculated amount
-        List<PayoutItem> items = new ArrayList<>();
-        PayoutItem payoutItem = new PayoutItem()
-                .recipientType("EMAIL")
-                .amount(new Currency()
-                        .currency("USD")
-                        .value(String.format("%.2f", payoutAmount)))
-                .receiver(receiverPayPalId);
-
-        items.add(payoutItem);
-
-        // Add the batch header and items to the request
-        request.requestBody(new PayoutBatch()
-                .senderBatchHeader(batchHeader)
-                .items(items));
-
-        // Execute the payout request
-        try {
-            HttpResponse<CreatePayoutResponse> response = payPalClient.execute(request);
-            if (response.statusCode() == 201) {
-                System.out.println("Payout successful!");
-            } else {
-                System.out.println("Payout failed with status: " + response.statusCode());
-            }
-        } catch (IOException | HttpException e) {
-            throw new RuntimeException("Error initiating PayPal payout", e);
-        }
+//        double totalAmount = Double.parseDouble(subscriptionAmount);
+//        double payoutAmount = totalAmount * 0.7;
+//
+//        // Construct the PayoutsPostRequest directly
+//        PayoutsPostRequest request = new PayoutsPostRequest();
+//
+//        // Create the sender batch header
+//        SenderBatchHeader batchHeader = new SenderBatchHeader()0
+//                .senderBatchId("batch_" + System.currentTimeMillis())
+//                .emailSubject("You have received a payout!");
+//
+//        // Set up a single payout item with the calculated amount
+//        List<PayoutItem> items = new ArrayList<>();
+//        PayoutItem payoutItem = new PayoutItem()
+//                .recipientType("EMAIL")
+//                .amount(new Currency()
+//                        .currency("USD")
+//                        .value(String.format("%.2f", payoutAmount)))
+//                .receiver(receiverPayPalId);
+//
+//        items.add(payoutItem);
+//
+//        // Add the batch header and items to the request
+//        request.requestBody(new PayoutBatch()
+//                .senderBatchHeader(batchHeader)
+//                .items(items));
+//
+//        // Execute the payout request
+//        try {
+//            HttpResponse<CreatePayoutResponse> response = payPalClient.execute(request);
+//            if (response.statusCode() == 201) {
+//                System.out.println("Payout successful!");
+//            } else {
+//                System.out.println("Payout failed with status: " + response.statusCode());
+//            }
+//        } catch (IOException | HttpException e) {
+//            throw new RuntimeException("Error initiating PayPal payout", e);
+//        }
     }
 }
